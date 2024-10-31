@@ -1,0 +1,121 @@
+/* General Body and Layout */
+body {
+    font-family: 'Georgia', serif;
+    line-height: 1.75;
+    color: var(--text-color, #000000);
+    background-color: var(--bg-color, #ffffff);
+    margin: 0;
+    padding: 0;
+    transition: background-color 0.3s, color 0.3s;
+    max-width: 900px;
+    margin: auto;
+    padding: 20px;
+}
+/* Responsive Typography */
+.chapter {
+    font-size: 1.2rem;
+    margin: 1.5em 0;
+}
+
+h2 {
+    font-size: 1.8rem;
+    font-weight: 600;
+    margin-top: 2em;
+    color: var(--heading-color, #333333);
+}
+
+@media (min-width: 768px) {
+    body {
+        font-size: 1.1rem;
+    }
+}
+
+@media (min-width: 1024px) {
+    body {
+        font-size: 1.2rem;
+        line-height: 1.8;
+    }
+}
+
+/* Navigation Buttons */
+#toggle-theme {
+    position: absolute;
+    top: 15px;
+    padding: 8px 15px;
+    cursor: pointer;
+    background-color: #ccc;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    border: none;
+    color: #333;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+#toggle-theme {
+    right: 15px;
+}
+
+#reset-button {
+    right: 130px;
+}
+
+#toggle-theme:hover, #reset-button:hover {
+    background-color: #bbb;
+}
+
+/* Dark Theme */
+.dark {
+    --bg-color: #121212;
+    --text-color: #e0e0e0;
+    --heading-color: #ffffff;
+}
+
+.dark #toggle-theme, .dark #reset-button {
+    background-color: #444;
+    color: #f5f5f5;
+}
+
+.dark h2 {
+    color: #ddd;
+}
+
+/* Smooth Scrolling for a Comfortable Experience */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Infinite Scroll Loading Indicator */
+.loading-indicator {
+    text-align: center;
+    font-size: 1rem;
+    padding: 20px 0;
+    color: var(--text-color, #000);
+}
+
+/* Additional Styling for Readability */
+.chapter p {
+    text-indent: 1em;
+    margin: 0.5em 0;
+}
+
+.chapter img {
+    max-width: 100%;
+    height: auto;
+    margin: 10px 0;
+    border-radius: 5px;
+}
+
+/* Responsive Styles for Small Screens */
+@media (max-width: 600px) {
+    body {
+        padding: 10px;
+        font-size: 1rem;
+    }
+    #toggle-theme, #reset-button {
+        padding: 5px 10px;
+        font-size: 0.8rem;
+    }
+    h2 {
+        font-size: 1.5rem;
+    }
+}
