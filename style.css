@@ -13,7 +13,7 @@ body {
 }
 /* Responsive Typography */
 .chapter {
-    font-size: 1.2rem;
+    font-size: 1.25rem;
     margin: 1.5em 0;
 }
 
@@ -26,14 +26,14 @@ h2 {
 
 @media (min-width: 768px) {
     body {
-        font-size: 1.1rem;
+        font-size: 1rem;
     }
 }
 
 @media (min-width: 1024px) {
     body {
-        font-size: 1.2rem;
-        line-height: 1.8;
+        font-size: 1.1rem;
+        line-height: 1.7;
     }
 }
 
