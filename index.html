@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Чтение книги</title>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        /* Базовый стиль */
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            background-color: var(--bg-color, #ffffff);
+            color: var(--text-color, #000000);
+            padding: 20px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .chapter {
+            margin-bottom: 20px;
+        }
+        #toggle-theme {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            padding: 10px;
+            cursor: pointer;
+            background-color: #ddd;
+            border-radius: 5px;
+        }
+        /* Темная тема */
+        .dark {
+            --bg-color: #1e1e1e;
+            --text-color: #ffffff;
+        }
+        /* Кнопка подгрузки */
+        .load-more {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #0066cc;
+            color: #ffffff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <button id="toggle-theme">Темная тема</button>
+
+    <div id="book-content">
+        <!-- Контейнер для контента книги -->
+    </div>
+
+    <button class="load-more" onclick="loadNextChapter()">Загрузить следующую главу</button>
+
+    <script>
+        // Флаг для переключения темной темы
+        const toggleThemeBtn = document.getElementById("toggle-theme");
+        toggleThemeBtn.addEventListener("click", () => {
+            document.body.classList.toggle("dark");
+            localStorage.setItem("theme", document.body.classList.contains("dark") ? "dark" : "light");
+        });
+
+        // Восстановление темы из локального хранилища
+        document.body.classList.toggle("dark", localStorage.getItem("theme") === "dark");
+
+        // Подгрузка главы в формате Markdown
+        let chapter = 1;
+
+        function loadNextChapter() {
+            const chapterUrl = `chapter${chapter}.md`;
+            fetch(chapterUrl)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error("Глава не найдена");
+                    }
+                    return response.text();
+                })
+                .then(markdown => {
+                    const html = marked.parse(markdown);
+                    const newChapter = document.createElement("div");
+                    newChapter.className = "chapter";
+                    newChapter.id = `chapter-${chapter}`;
+                    newChapter.innerHTML = `<h2>Глава ${chapter}</h2>${html}`;
+                    document.getElementById("book-content").appendChild(newChapter);
+                    
+                    // Сохранение прогресса
+                    localStorage.setItem("currentChapter", chapter);
+                    chapter++;
+                })
+                .catch(error => {
+                    alert(error.message);
+                });
+        }
+
+        // Восстановление прогресса
+        document.addEventListener("DOMContentLoaded", () => {
+            const savedChapter = localStorage.getItem("currentChapter");
+            if (savedChapter) {
+                chapter = parseInt(savedChapter) + 1;
+                for (let i = 1; i < chapter; i++) {
+                    loadNextChapter();
+                }
+            } else {
+                loadNextChapter();
+            }
+        });
+    </script>
+</body>
+</html>
