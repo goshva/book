@@ -1,71 +1,151 @@
-const toggleThemeBtn = document.getElementById("toggle-theme");
-toggleThemeBtn.addEventListener("click", () => {
-    document.body.classList.toggle("dark");
-    localStorage.setItem("theme", document.body.classList.contains("dark") ? "dark" : "light");
+const BOOK_URL = "https://goshva.github.io/book/document.xml";
+const container = document.getElementById('book');
+const progressIndicator = document.querySelector('.progress-indicator');
+const backToTopButton = document.querySelector('.back-to-top');
+
+// Плавная прокрутка
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const targetId = this.getAttribute('href');
+        if (targetId === '#') return;
+
+        const targetElement = document.querySelector(targetId);
+        if (targetElement) {
+            targetElement.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+        }
+    });
 });
 
-document.body.classList.toggle("dark", localStorage.getItem("theme") === "dark");
+// Индикатор прогресса
+function updateProgressIndicator() {
+    const windowHeight = window.innerHeight;
+    const documentHeight = document.documentElement.scrollHeight - windowHeight;
+    const scrolled = window.scrollY;
 
-const urlParams = new URLSearchParams(window.location.search);
-let chapter = parseInt(urlParams.get("chapter")) || 0;
-let loading = false;
+    const progress = scrolled / documentHeight;
+    progressIndicator.style.transform = `scaleX(${progress})`;
+}
 
-function loadNextChapter() {
-    if (loading) return;
-    loading = true;
+// Кнопка "Наверх"
+function toggleBackToTopButton() {
+    if (window.scrollY > window.innerHeight * 0.4) {
+        backToTopButton.classList.add('visible');
+    } else {
+        backToTopButton.classList.remove('visible');
+    }
+}
 
-    const chapterUrl = `G copy ${chapter}.md`;
-    fetch(chapterUrl)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error("Глава не найдена");
+// Обработчики событий
+window.addEventListener('scroll', () => {
+    updateProgressIndicator();
+    toggleBackToTopButton();
+});
+
+// Загрузка контента
+fetch(BOOK_URL)
+    .then(r => {
+        if (!r.ok) throw new Error("Связь с архивом прервана");
+        return r.text();
+    })
+    .then(xmlText => {
+        container.innerHTML = "";
+        const parser = new DOMParser();
+        const xml = parser.parseFromString(xmlText, "application/xml");
+
+        const paragraphs = xml.querySelectorAll("w\\:p, p");
+        let previousElement = null;
+
+        paragraphs.forEach((p, index) => {
+            const texts = p.querySelectorAll("w\\:t, t");
+            let content = "";
+            texts.forEach(t => content += (t.textContent || ""));
+            content = content.trim();
+            if (!content) return;
+
+            let el;
+
+            // Заголовки
+            if (/^[A-ZА-ЯЁ0-9\s«».,!?—–-]+$/.test(content) && content.length < 140 && content === content.toUpperCase()) {
+                if (content === "***" || content === "888" || content.includes("✶")) {
+                    el = document.createElement("h6");
+                } else {
+                    el = document.createElement("h1");
+
+                }
+                el.textContent = content;
+                container.appendChild(el);
+                previousElement = el;
+                return;
             }
-            return response.text();
-        })
-        .then(markdown => {
-            const html = marked.parse(markdown);
-            const newChapter = document.createElement("div");
-            newChapter.className = "chapter";
-            newChapter.id = `chapter-${chapter}`;
-            newChapter.innerHTML = `<h2>Глава ${chapter}</h2>${html}`;
-            document.getElementById("book-content").appendChild(newChapter);
 
-            localStorage.setItem("currentChapter", chapter);
+            // Цитаты
+            if (content.startsWith("«") && content.endsWith("»")) {
+                el = document.createElement("div");
+                el.className = "blockquote";
+                el.textContent = content;
+                container.appendChild(el);
+                previousElement = el;
+                return;
+            }
 
-            history.replaceState(null, "", `?chapter=${chapter}`);
-            chapter++;
-            loading = false;
-            checkAndLoadMore();
-        })
-        .catch(error => {
-            console.warn(error.message);
-            loading = false;
+            // Разделители
+            if (content === "***" || content === "888" || content.includes("✶")) {
+                el = document.createElement("div");
+                el.className = "divider";
+                el.textContent = "···";
+                container.appendChild(el);
+                previousElement = el;
+                return;
+            }
+
+            // Стихи
+            if (content.split("\n").length > 2) {
+                el = document.createElement("div");
+                el.className = "poem-block";
+                el.textContent = content;
+                container.appendChild(el);
+                previousElement = el;
+                return;
+            }
+
+            // Проверяем, является ли текущий абзац автором предыдущей цитаты
+            // Имя автора обычно короткое (до 40 символов) и содержит тире, точки или инициалы
+            if (previousElement && previousElement.className === "blockquote" &&
+                content.length < 40 &&
+                (/[А-ЯЁ]\.[А-ЯЁ]\./.test(content) || /[А-ЯЁ][а-яё]+\s+[А-ЯЁ][а-яё]+/.test(content) || content.includes("-"))) {
+
+                // Создаём элемент для автора цитаты
+                const authorEl = document.createElement("div");
+                authorEl.className = "quote-author";
+                authorEl.textContent = content;
+                authorEl.style.textAlign = "right";
+                authorEl.style.fontStyle = "italic";
+                authorEl.style.marginTop = "-1.5rem";
+                authorEl.style.marginBottom = "2.5rem";
+                authorEl.style.color = "var(--muted)";
+                authorEl.style.fontSize = "0.95rem";
+                authorEl.style.paddingRight = "2rem";
+
+                container.appendChild(authorEl);
+                previousElement = authorEl;
+                return;
+            }
+
+            // Обычные абзацы
+            el = document.createElement("p");
+            el.textContent = content;
+            container.appendChild(el);
+            previousElement = el;
         });
-}
 
-function checkAndLoadMore() {
-    if (document.body.scrollHeight <= window.innerHeight) {
-        loadNextChapter();
-    }
-}
-
-document.addEventListener("DOMContentLoaded", () => {
-    document.getElementById("book-content").innerHTML = "";
-    loadNextChapter();
-});
-
-window.addEventListener("scroll", () => {
-    if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 10) {
-        loadNextChapter();
-    }
-});
-
-document.getElementById("reset-button").addEventListener("click", () => {
-    chapter = 0;
-    localStorage.removeItem("currentChapter");
-    history.pushState(null, "", "?chapter=0");
-    document.getElementById("book-content").innerHTML = "";
-    loadNextChapter();
-});
-
-checkAndLoadMore();
+        // Инициализация после загрузки
+        updateProgressIndicator();
+        toggleBackToTopButton();
+    })
+    .catch(err => {
+        container.innerHTML = `<p class="muted">Архив повреждён: ${err.message}</p>`;
+    });

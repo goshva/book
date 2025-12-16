@@ -1,121 +1,413 @@
-/* General Body and Layout */
+/* =========================================================
+   ЦВЕТА — минималистичный ксерокопия
+   ========================================================= */
+:root {
+    --bg: #ffffff;
+    /* Чистый белый фон */
+    --paper: #fefefe;
+    /* Едва заметный оттенок бумаги */
+    --text: #0a0a0a;
+    /* Глубокий чёрный текст */
+    --text-light: #333333;
+    /* Светлый текст для контраста */
+    --muted: #666666;
+    /* Серый для второстепенного */
+    --border: #cccccc;
+    /* Цвет границ */
+    --copy-effect: rgba(0, 0, 0, 0.03);
+    /* Эффект ксерокопии */
+}
+
+/* =========================================================
+   SMOOTH SCROLLING
+   ========================================================= */
+html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 2rem;
+}
+
+/* =========================================================
+   ОБЩАЯ СТРАНИЦА
+   ========================================================= */
+html,
 body {
-    font-family: 'Georgia', serif;
-    line-height: 1.75;
-    color: var(--text-color, #000000);
-    background-color: var(--bg-color, #ffffff);
     margin: 0;
     padding: 0;
-    transition: background-color 0.3s, color 0.3s;
-    max-width: 900px;
-    margin: auto;
-    padding: 20px;
+    height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Georgia', 'Times New Roman', serif;
+    overflow-x: hidden;
+    line-height: 1.6;
+    font-weight: 400;
 }
-/* Responsive Typography */
-.chapter {
-    font-size: 1.25rem;
-    margin: 1.5em 0;
+
+/* =========================================================
+   ОСНОВНОЙ КОНТЕЙНЕР — эффект ксерокопии
+   ========================================================= */
+main#book {
+    position: relative;
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 3rem 2.5rem 5rem;
+    background: var(--paper);
+    box-shadow:
+        0 1px 3px rgba(0, 0, 0, 0.02),
+        0 20px 40px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+}
+
+/* Эффект ксерокопии — лёгкая текстура */
+main#book::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image:
+        linear-gradient(var(--copy-effect) 1px, transparent 1px),
+        linear-gradient(90deg, var(--copy-effect) 1px, transparent 1px);
+    background-size: 20px 20px;
+    pointer-events: none;
+    opacity: 0.3;
+    mix-blend-mode: multiply;
+}
+
+/* =========================================================
+   ТИПОГРАФИКА — строгая, контрастная
+   ========================================================= */
+p,
+h1,
+h2,
+h6,
+.blockquote,
+.poem-block,
+.divider,
+.muted {
+    /* Максимальная читаемость */
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Основной текст */
+p {
+    margin: 0 0 1.5em;
+    font-size: 1.1rem;
+    line-height: 1.7;
+    text-align: justify;
+    text-indent: 2em;
+    hyphens: auto;
+    max-width: 68ch;
+    margin-left: auto;
+    margin-right: auto;
+    color: var(--text);
+    font-weight: 400;
+    letter-spacing: -0.01em;
+}
+
+/* Убираем красную строку у первого абзаца */
+p:first-of-type {
+    text-indent: 0;
+    font-size: 1.15rem;
+    line-height: 1.75;
+}
+
+
+/* Заголовки */
+h1 {
+    text-align: center;
+    font-size: 1.3rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    margin: 4rem 0 3rem;
+    text-transform: uppercase;
+    color: var(--text);
+}
+
+h6 {
+    text-align: center;
+    font-size: 0.5rem;
+    font-weight: 100;
+    letter-spacing: 0.72em;
+    margin: 4rem 0 3rem;
+    text-transform: uppercase;
+    font-family: 'Helvetica', 'Arial', sans-serif;
+    color: var(--text);
+    opacity: 0.7;
+}
+
+/* Подчёркивание заголовка */
+h1::after {
+    content: "";
+    position: absolute;
+    bottom: -15px;
+    left: 30%;
+    right: 30%;
+    height: 1px;
+    background: linear-gradient(90deg,
+            transparent,
+            var(--border),
+            transparent);
+    opacity: 0.4;
 }
 
 h2 {
-    font-size: 1.8rem;
-    font-weight: 600;
-    margin-top: 2em;
-    color: var(--heading-color, #333333);
-}
-
-@media (min-width: 768px) {
-    body {
-        font-size: 1rem;
-    }
-}
-
-@media (min-width: 1024px) {
-    body {
-        font-size: 1.1rem;
-        line-height: 1.7;
-    }
-}
-
-/* Navigation Buttons */
-#toggle-theme {
-    position: absolute;
-    top: 15px;
-    padding: 8px 15px;
-    cursor: pointer;
-    background-color: #ccc;
-    border-radius: 8px;
-    font-size: 0.9rem;
-    border: none;
-    color: #333;
-    transition: background-color 0.3s, color 0.3s;
-}
-
-#toggle-theme {
-    right: 15px;
-}
-
-#reset-button {
-    right: 130px;
-}
-
-#toggle-theme:hover, #reset-button:hover {
-    background-color: #bbb;
-}
-
-/* Dark Theme */
-.dark {
-    --bg-color: #121212;
-    --text-color: #e0e0e0;
-    --heading-color: #ffffff;
-}
-
-.dark #toggle-theme, .dark #reset-button {
-    background-color: #444;
-    color: #f5f5f5;
-}
-
-.dark h2 {
-    color: #ddd;
-}
-
-/* Smooth Scrolling for a Comfortable Experience */
-html {
-    scroll-behavior: smooth;
-}
-
-/* Infinite Scroll Loading Indicator */
-.loading-indicator {
     text-align: center;
+    font-size: 1.5rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    margin: 3.5rem 0 2.5rem;
+    font-family: 'Helvetica', 'Arial', sans-serif;
+    color: var(--text-light);
+    text-transform: uppercase;
+    font-variant: small-caps;
+}
+
+/* Цитаты */
+.blockquote {
+    text-align: right;
+    font-style: italic;
+    margin: 4rem 6rem 4rem 8rem;
+    font-size: 1.05rem;
+    line-height: 1.7;
+    max-width: 60ch;
+    margin-left: auto;
+    margin-right: auto;
+    border-right: 2px solid var(--border);
+    padding-right: 2rem;
+    color: var(--text-light);
+    position: relative;
+}
+
+/* Кавычки */
+.blockquote::before {
+    content: "''";
+    position: absolute;
+    left: -2.5rem;
+    top: -0.5rem;
+    font-size: 3rem;
+    color: var(--border);
+    opacity: 0.3;
+    font-family: 'Georgia', serif;
+}
+
+/* Разделители */
+.divider {
+    text-align: center;
+    margin: 5rem 0;
+    color: var(--border);
     font-size: 1rem;
-    padding: 20px 0;
-    color: var(--text-color, #000);
+    letter-spacing: 0.5em;
+    position: relative;
+    overflow: hidden;
+    opacity: 0.6;
 }
 
-/* Additional Styling for Readability */
-.chapter p {
-    text-indent: 1em;
-    margin: 0.5em 0;
+.divider::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: -100%;
+    right: -100%;
+    height: 1px;
+    background: linear-gradient(90deg,
+            transparent,
+            var(--border),
+            transparent);
+    animation: xerox-scan 8s linear infinite;
+    opacity: 0.3;
 }
 
-.chapter img {
-    max-width: 100%;
-    height: auto;
-    margin: 10px 0;
-    border-radius: 5px;
+.divider::after {
+    content: "···";
+    position: relative;
+    z-index: 1;
+    background: var(--paper);
+    padding: 0 1em;
+    letter-spacing: 2em;
 }
 
-/* Responsive Styles for Small Screens */
-@media (max-width: 600px) {
-    body {
-        padding: 10px;
+/* Поэтические блоки */
+.poem-block {
+    margin: 4rem auto;
+    padding: 2.5rem 3rem;
+    max-width: 62ch;
+    white-space: pre-line;
+    font-size: 1.05rem;
+    line-height: 1.9;
+    font-style: italic;
+    background: var(--paper);
+    border: 1px solid var(--border);
+    color: var(--text-light);
+    position: relative;
+    box-shadow:
+        0.5px 0.5px 0.5px rgba(0, 0, 0, 0.1),
+        1px 1px 1px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+}
+
+.muted {
+    color: var(--muted);
+    font-style: italic;
+    text-align: center;
+    margin: 3rem 0;
+    font-size: 0.95rem;
+    letter-spacing: 0.02em;
+    opacity: 0.8;
+}
+
+/* =========================================================
+   ИНДИКАТОР ПРОГРЕССА — минимальный
+   ========================================================= */
+.progress-indicator {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(90deg,
+            transparent,
+            var(--border),
+            transparent);
+    transform-origin: 0%;
+    transform: scaleX(0);
+    transition: transform 0.2s ease-out;
+    z-index: 1000;
+    opacity: 0.5;
+}
+
+/* =========================================================
+   КНОПКА НАВЕРХ
+   ========================================================= */
+.back-to-top {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    width: 40px;
+    height: 40px;
+    background: var(--paper);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    color: var(--text-light);
+    font-size: 1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    z-index: 1000;
+    text-decoration: none;
+    box-shadow:
+        0 1px 2px rgba(0, 0, 0, 0.05),
+        0 0 1px rgba(0, 0, 0, 0.1);
+    font-family: 'Arial', sans-serif;
+}
+
+.back-to-top.visible {
+    opacity: 0.3;
+    visibility: visible;
+}
+
+.back-to-top:hover {
+    opacity: 0.8;
+    background: var(--paper);
+    transform: translateY(-1px);
+    box-shadow:
+        0 2px 4px rgba(0, 0, 0, 0.1),
+        0 0 2px rgba(0, 0, 0, 0.2);
+}
+
+/* =========================================================
+   ЭФФЕКТЫ КСЕРОКСА
+   ========================================================= */
+.xerox-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 900;
+    background-image:
+        linear-gradient(rgba(255, 255, 255, 0.8) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.8) 1px, transparent 1px);
+    background-size: 50px 50px;
+    opacity: 0.02;
+    mix-blend-mode: overlay;
+}
+
+/* =========================================================
+   МЕДИА-ЗАПРОСЫ
+   ========================================================= */
+@media (max-width: 768px) {
+    main#book {
+        margin: 1rem auto;
+        padding: 2rem 1.5rem 3rem;
+        max-width: 95%;
+    }
+
+    p {
+        font-size: 1rem;
+        line-height: 1.65;
+        text-align: left;
+        max-width: 100%;
+    }
+
+    h1 {
+        font-size: 1.8rem;
+        margin: 3rem 0 2rem;
+    }
+
+    h2 {
+        font-size: 1.3rem;
+        margin: 2.5rem 0 2rem;
+    }
+
+    .blockquote {
+        margin: 3rem 2rem;
+        padding-right: 1.5rem;
         font-size: 1rem;
     }
-    #toggle-theme, #reset-button {
-        padding: 5px 10px;
-        font-size: 0.8rem;
+
+    .blockquote::before {
+        left: -1.5rem;
+        font-size: 2rem;
     }
-    h2 {
-        font-size: 1.5rem;
+
+    .poem-block {
+        padding: 2rem 1.5rem;
+        margin: 3rem auto;
+    }
+
+    .back-to-top {
+        bottom: 1rem;
+        right: 1rem;
+        width: 35px;
+        height: 35px;
+        font-size: 0.9rem;
+    }
+}
+
+@media print {
+
+    .progress-indicator,
+    .back-to-top,
+    .xerox-overlay {
+        display: none;
+    }
+
+    main#book {
+        box-shadow: none;
+        margin: 0;
+        padding: 2rem;
+        max-width: 100%;
+    }
+
+    main#book::before {
+        display: none;
     }
 }
