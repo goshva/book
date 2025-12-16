@@ -2,24 +2,593 @@
 <html lang="ru">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Чтение книги</title>
-    <link rel="stylesheet" href="./style.css">
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <meta charset="UTF-8" />
+    <title>Эпифания или апофения?</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+        /* =========================================================
+   ЦВЕТА — минималистичный ксерокопия
+   ========================================================= */
+        :root {
+            --bg: #ffffff;
+            /* Чистый белый фон */
+            --paper: #fefefe;
+            /* Едва заметный оттенок бумаги */
+            --text: #0a0a0a;
+            /* Глубокий чёрный текст */
+            --text-light: #333333;
+            /* Светлый текст для контраста */
+            --muted: #666666;
+            /* Серый для второстепенного */
+            --border: #cccccc;
+            /* Цвет границ */
+            --copy-effect: rgba(0, 0, 0, 0.03);
+            /* Эффект ксерокопии */
+        }
+
+        /* =========================================================
+   SMOOTH SCROLLING
+   ========================================================= */
+        html {
+            scroll-behavior: smooth;
+            scroll-padding-top: 2rem;
+        }
+
+        /* =========================================================
+   ОБЩАЯ СТРАНИЦА
+   ========================================================= */
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Georgia', 'Times New Roman', serif;
+            overflow-x: hidden;
+            line-height: 1.6;
+            font-weight: 400;
+        }
+
+        /* =========================================================
+   ОСНОВНОЙ КОНТЕЙНЕР — эффект ксерокопии
+   ========================================================= */
+        main#book {
+            position: relative;
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 3rem 2.5rem 5rem;
+            background: var(--paper);
+            box-shadow:
+                0 1px 3px rgba(0, 0, 0, 0.02),
+                0 20px 40px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+        }
+
+        /* Эффект ксерокопии — лёгкая текстура */
+        main#book::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image:
+                linear-gradient(var(--copy-effect) 1px, transparent 1px),
+                linear-gradient(90deg, var(--copy-effect) 1px, transparent 1px);
+            background-size: 20px 20px;
+            pointer-events: none;
+            opacity: 0.3;
+            mix-blend-mode: multiply;
+        }
+
+        /* =========================================================
+   ТИПОГРАФИКА — строгая, контрастная
+   ========================================================= */
+        p,
+        h1,
+        h2,
+        h6,
+        .blockquote,
+        .poem-block,
+        .divider,
+        .muted {
+            /* Максимальная читаемость */
+            text-rendering: optimizeLegibility;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Основной текст */
+        p {
+            margin: 0 0 1.5em;
+            font-size: 1.1rem;
+            line-height: 1.7;
+            text-align: justify;
+            text-indent: 2em;
+            hyphens: auto;
+            max-width: 68ch;
+            margin-left: auto;
+            margin-right: auto;
+            color: var(--text);
+            font-weight: 400;
+            letter-spacing: -0.01em;
+        }
+
+        /* Убираем красную строку у первого абзаца */
+        p:first-of-type {
+            text-indent: 0;
+            font-size: 1.15rem;
+            line-height: 1.75;
+        }
+
+
+        /* Заголовки */
+        h1 {
+            text-align: center;
+            font-size: 2.2rem;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            margin: 4rem 0 3rem;
+            text-transform: uppercase;
+            font-family: 'Helvetica', 'Arial', sans-serif;
+            color: var(--text);
+        }
+        
+        h6 {
+            text-align: center;
+            font-size: 0.5rem;
+            font-weight: 100;
+            letter-spacing: 0.72em;
+            margin: 4rem 0 3rem;
+            text-transform: uppercase;
+            font-family: 'Helvetica', 'Arial', sans-serif;
+            color: var(--text);
+            opacity: 0.7;
+        }
+        /* Подчёркивание заголовка */
+        h1::after {
+            content: "";
+            position: absolute;
+            bottom: -15px;
+            left: 30%;
+            right: 30%;
+            height: 1px;
+            background: linear-gradient(90deg,
+                    transparent,
+                    var(--border),
+                    transparent);
+            opacity: 0.4;
+        }
+
+        h2 {
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: 600;
+            letter-spacing: 0.01em;
+            margin: 3.5rem 0 2.5rem;
+            font-family: 'Helvetica', 'Arial', sans-serif;
+            color: var(--text-light);
+            text-transform: uppercase;
+            font-variant: small-caps;
+        }
+
+        /* Цитаты */
+        .blockquote {
+            text-align: right;
+            font-style: italic;
+            margin: 4rem 6rem 4rem 8rem;
+            font-size: 1.05rem;
+            line-height: 1.7;
+            max-width: 60ch;
+            margin-left: auto;
+            margin-right: auto;
+            border-right: 2px solid var(--border);
+            padding-right: 2rem;
+            color: var(--text-light);
+            position: relative;
+        }
+
+        /* Кавычки */
+        .blockquote::before {
+            content: "''";
+            position: absolute;
+            left: -2.5rem;
+            top: -0.5rem;
+            font-size: 3rem;
+            color: var(--border);
+            opacity: 0.3;
+            font-family: 'Georgia', serif;
+        }
+
+        /* Разделители */
+        .divider {
+            text-align: center;
+            margin: 5rem 0;
+            color: var(--border);
+            font-size: 1rem;
+            letter-spacing: 0.5em;
+            position: relative;
+            overflow: hidden;
+            opacity: 0.6;
+        }
+
+        .divider::before {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: -100%;
+            right: -100%;
+            height: 1px;
+            background: linear-gradient(90deg,
+                    transparent,
+                    var(--border),
+                    transparent);
+            animation: xerox-scan 8s linear infinite;
+            opacity: 0.3;
+        }
+
+        .divider::after {
+            content: "···";
+            position: relative;
+            z-index: 1;
+            background: var(--paper);
+            padding: 0 1em;
+            letter-spacing: 2em;
+        }
+
+        /* Поэтические блоки */
+        .poem-block {
+            margin: 4rem auto;
+            padding: 2.5rem 3rem;
+            max-width: 62ch;
+            white-space: pre-line;
+            font-size: 1.05rem;
+            line-height: 1.9;
+            font-style: italic;
+            background: var(--paper);
+            border: 1px solid var(--border);
+            color: var(--text-light);
+            position: relative;
+            box-shadow:
+                0.5px 0.5px 0.5px rgba(0, 0, 0, 0.1),
+                1px 1px 1px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+        }
+
+        .muted {
+            color: var(--muted);
+            font-style: italic;
+            text-align: center;
+            margin: 3rem 0;
+            font-size: 0.95rem;
+            letter-spacing: 0.02em;
+            opacity: 0.8;
+        }
+
+        /* =========================================================
+   ИНДИКАТОР ПРОГРЕССА — минимальный
+   ========================================================= */
+        .progress-indicator {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            background: linear-gradient(90deg,
+                    transparent,
+                    var(--border),
+                    transparent);
+            transform-origin: 0%;
+            transform: scaleX(0);
+            transition: transform 0.2s ease-out;
+            z-index: 1000;
+            opacity: 0.5;
+        }
+
+        /* =========================================================
+   КНОПКА НАВЕРХ
+   ========================================================= */
+        .back-to-top {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 40px;
+            height: 40px;
+            background: var(--paper);
+            border: 1px solid var(--border);
+            border-radius: 2px;
+            color: var(--text-light);
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            text-decoration: none;
+            box-shadow:
+                0 1px 2px rgba(0, 0, 0, 0.05),
+                0 0 1px rgba(0, 0, 0, 0.1);
+            font-family: 'Arial', sans-serif;
+        }
+
+        .back-to-top.visible {
+            opacity: 0.3;
+            visibility: visible;
+        }
+
+        .back-to-top:hover {
+            opacity: 0.8;
+            background: var(--paper);
+            transform: translateY(-1px);
+            box-shadow:
+                0 2px 4px rgba(0, 0, 0, 0.1),
+                0 0 2px rgba(0, 0, 0, 0.2);
+        }
+
+        /* =========================================================
+   ЭФФЕКТЫ КСЕРОКСА
+   ========================================================= */
+        .xerox-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 900;
+            background-image:
+                linear-gradient(rgba(255, 255, 255, 0.8) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.8) 1px, transparent 1px);
+            background-size: 50px 50px;
+            opacity: 0.02;
+            mix-blend-mode: overlay;
+        }
+
+        /* =========================================================
+   МЕДИА-ЗАПРОСЫ
+   ========================================================= */
+        @media (max-width: 768px) {
+            main#book {
+                margin: 1rem auto;
+                padding: 2rem 1.5rem 3rem;
+                max-width: 95%;
+            }
+
+            p {
+                font-size: 1rem;
+                line-height: 1.65;
+                text-align: left;
+                max-width: 100%;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+                margin: 3rem 0 2rem;
+            }
+
+            h2 {
+                font-size: 1.3rem;
+                margin: 2.5rem 0 2rem;
+            }
+
+            .blockquote {
+                margin: 3rem 2rem;
+                padding-right: 1.5rem;
+                font-size: 1rem;
+            }
+
+            .blockquote::before {
+                left: -1.5rem;
+                font-size: 2rem;
+            }
+
+            .poem-block {
+                padding: 2rem 1.5rem;
+                margin: 3rem auto;
+            }
+
+            .back-to-top {
+                bottom: 1rem;
+                right: 1rem;
+                width: 35px;
+                height: 35px;
+                font-size: 0.9rem;
+            }
+        }
+
+        @media print {
+
+            .progress-indicator,
+            .back-to-top,
+            .xerox-overlay {
+                display: none;
+            }
+
+            main#book {
+                box-shadow: none;
+                margin: 0;
+                padding: 2rem;
+                max-width: 100%;
+            }
+
+            main#book::before {
+                display: none;
+            }
+        }
+    </style>
 </head>
 
 <body>
-    <header>
-        <button id="toggle-theme">⚫️ ⚪️</button>
-    </header>
-    <div id="book-content">
-        <!-- Контейнер для контента книги -->
-    </div>
-    <footer>
-        <button id="reset-button">Повторить</button>
-    </footer>
-<script src="./script.js"></script>
+    <!-- Эффект ксерокопии -->
+    <div class="xerox-overlay"></div>
+
+    <!-- Индикатор прогресса -->
+    <div class="progress-indicator"></div>
+
+    <!-- Кнопка "Наверх" -->
+    <a href="#" class="back-to-top" aria-label="Наверх">↑</a>
+
+    <main id="book">
+        <p class="muted">Загрузка архивных данных…</p>
+    </main>
+
+    <script>
+        const BOOK_URL = "https://goshva.github.io/book/document.xml";
+        const container = document.getElementById('book');
+        const progressIndicator = document.querySelector('.progress-indicator');
+        const backToTopButton = document.querySelector('.back-to-top');
+
+        // Плавная прокрутка
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                if (targetId === '#') return;
+
+                const targetElement = document.querySelector(targetId);
+                if (targetElement) {
+                    targetElement.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Индикатор прогресса
+        function updateProgressIndicator() {
+            const windowHeight = window.innerHeight;
+            const documentHeight = document.documentElement.scrollHeight - windowHeight;
+            const scrolled = window.scrollY;
+
+            const progress = scrolled / documentHeight;
+            progressIndicator.style.transform = `scaleX(${progress})`;
+        }
+
+        // Кнопка "Наверх"
+        function toggleBackToTopButton() {
+            if (window.scrollY > window.innerHeight * 0.4) {
+                backToTopButton.classList.add('visible');
+            } else {
+                backToTopButton.classList.remove('visible');
+            }
+        }
+
+        // Обработчики событий
+        window.addEventListener('scroll', () => {
+            updateProgressIndicator();
+            toggleBackToTopButton();
+        });
+
+        // Загрузка контента
+        fetch(BOOK_URL)
+            .then(r => {
+                if (!r.ok) throw new Error("Связь с архивом прервана");
+                return r.text();
+            })
+            .then(xmlText => {
+                container.innerHTML = "";
+                const parser = new DOMParser();
+                const xml = parser.parseFromString(xmlText, "application/xml");
+
+                const paragraphs = xml.querySelectorAll("w\\:p, p");
+                let previousElement = null;
+
+                paragraphs.forEach((p, index) => {
+                    const texts = p.querySelectorAll("w\\:t, t");
+                    let content = "";
+                    texts.forEach(t => content += (t.textContent || ""));
+                    content = content.trim();
+                    if (!content) return;
+
+                    let el;
+
+                    // Заголовки
+                    if (/^[A-ZА-ЯЁ0-9\s«».,!?—–-]+$/.test(content) && content.length < 140 && content === content.toUpperCase()) {
+                        if (content === "***" || content === "888" || content.includes("✶")) {
+                            el = document.createElement("h6");
+                        } else {
+                            el = document.createElement("h1");
+
+                        }
+                        el.textContent = content;
+                        container.appendChild(el);
+                        previousElement = el;
+                        return;
+                    }
+
+                    // Цитаты
+                    if (content.startsWith("«") && content.endsWith("»")) {
+                        el = document.createElement("div");
+                        el.className = "blockquote";
+                        el.textContent = content;
+                        container.appendChild(el);
+                        previousElement = el;
+                        return;
+                    }
+
+                    // Разделители
+                    if (content === "***" || content === "888" || content.includes("✶")) {
+                        el = document.createElement("div");
+                        el.className = "divider";
+                        el.textContent = "···";
+                        container.appendChild(el);
+                        previousElement = el;
+                        return;
+                    }
+
+                    // Стихи
+                    if (content.split("\n").length > 2) {
+                        el = document.createElement("div");
+                        el.className = "poem-block";
+                        el.textContent = content;
+                        container.appendChild(el);
+                        previousElement = el;
+                        return;
+                    }
+
+                    // Проверяем, является ли текущий абзац автором предыдущей цитаты
+                    // Имя автора обычно короткое (до 40 символов) и содержит тире, точки или инициалы
+                    if (previousElement && previousElement.className === "blockquote" &&
+                        content.length < 40 &&
+                        (/[А-ЯЁ]\.[А-ЯЁ]\./.test(content) || /[А-ЯЁ][а-яё]+\s+[А-ЯЁ][а-яё]+/.test(content) || content.includes("-"))) {
+
+                        // Создаём элемент для автора цитаты
+                        const authorEl = document.createElement("div");
+                        authorEl.className = "quote-author";
+                        authorEl.textContent = content;
+                        authorEl.style.textAlign = "right";
+                        authorEl.style.fontStyle = "italic";
+                        authorEl.style.marginTop = "-1.5rem";
+                        authorEl.style.marginBottom = "2.5rem";
+                        authorEl.style.color = "var(--muted)";
+                        authorEl.style.fontSize = "0.95rem";
+                        authorEl.style.paddingRight = "2rem";
+
+                        container.appendChild(authorEl);
+                        previousElement = authorEl;
+                        return;
+                    }
+
+                    // Обычные абзацы
+                    el = document.createElement("p");
+                    el.textContent = content;
+                    container.appendChild(el);
+                    previousElement = el;
+                });
+
+                // Инициализация после загрузки
+                updateProgressIndicator();
+                toggleBackToTopButton();
+            })
+            .catch(err => {
+                container.innerHTML = `<p class="muted">Архив повреждён: ${err.message}</p>`;
+            });
+    </script>
 </body>
 
 </html>
